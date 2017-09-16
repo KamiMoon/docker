@@ -1,0 +1,132 @@
+
+
+
+Stack 
+Services
+Container
+
+
+
+App, Depenendies and runtime all travel together
+in a Dockerfile
+
+
+
+docker build -t friendlyhello .
+
+docker images
+
+docker run -p 4000:80 friendlyhello
+
+http://localhost:4000
+
+
+Run in background in detached mode
+
+docker run -d -p 4000:80 friendlyhello
+
+docker stop 1fa4ab2cf395
+
+
+
+
+
+docker login
+erickiza87
+docker123
+
+docker tag image username/repository:tag
+docker tag friendlyhello erickiza87/get-started:part1
+
+Publish
+docker push username/repository:tag
+docker push erickiza87/get-started:part1
+
+Pull and run image from remote
+docker run -p 4000:80 username/repository:tag
+docker run -p 4000:80 erickiza87/get-started:part1
+
+
+docker image rm <image id>
+
+
+docker build -t friendlyname .  # Create image using this directory's Dockerfile
+docker run -p 4000:80 friendlyname  # Run "friendlyname" mapping port 4000 to 80
+docker run -d -p 4000:80 friendlyname         # Same thing, but in detached mode
+docker container ls                                # List all running containers
+docker container ls -a             # List all containers, even those not running
+docker container stop <hash>           # Gracefully stop the specified container
+docker container kill <hash>         # Force shutdown of the specified container
+docker container rm <hash>        # Remove specified container from this machine
+docker container rm $(docker container ls -a -q)         # Remove all containers
+docker image ls -a                             # List all images on this machine
+docker image rm <image id>            # Remove specified image from this machine
+docker image rm $(docker image ls -a -q)   # Remove all images from this machine
+docker login             # Log in this CLI session using your Docker credentials
+docker tag <image> username/repository:tag  # Tag <image> for upload to registry
+docker push username/repository:tag            # Upload tagged image to registry
+docker run username/repository:tag                   # Run image from a registry
+
+Part 3:  Services
+
+Services are really just “containers in production.” A service only runs one image, but it codifies the way that image runs—what ports it should use, how many replicas of the container should run so the service has the capacity it needs, and so on. Scaling a service changes the number of container instances running that piece of software, assigning more computing resources to the service in the process.
+
+
+docker inspect --format='{{.Status.ContainerStatus.ContainerID}}' p4tm60nr91uo
+
+
+Part 4:  Swarms
+
+docker run -p 80:80 erickiza87/get-started:part1
+
+
+A swarm is a group of machines that are running Docker and joined into a cluster. After that has happened, you continue to run the Docker commands you’re used to, but now they are executed on a cluster by a swarm manager. The machines in a swarm can be physical or virtual. After joining a swarm, they are referred to as nodes.
+
+
+Install Virtual Box
+https://www.virtualbox.org/wiki/Downloads
+
+docker-machine create --driver virtualbox myvm1
+docker-machine create --driver virtualbox myvm2
+
+
+docker-machine ssh myvm1 "docker swarm init --advertise-addr 192.168.99.100:2377"
+
+
+docker swarm join --token SWMTKN-1-4ixmurzyeblo3uo4eqj28hvbbm2uoq4tumt0mjs0mqtm1umx4k-78jw9nj46smxnxd958unkoeii 192.168.99.100:2377 
+
+https://github.com/docker/machine/issues/4064
+Port 2377 for some reason
+
+
+    docker swarm join --token SWMTKN-1-3ud3w1qw2sarvev65e6cbyviut35j1myql97qdh4njboonsfxy-dafw14ikr3pflubyyi8gi28x6 192.168.99.100:2377
+
+
+
+erickizaki$ docker-machine scp docker-compose.yml myvm1:~
+
+
+docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"
+
+docker-machine ssh myvm1 "docker stack rm getstartedlab"
+
+
+
+Part 5:
+
+Here in part 5, you’ll reach the top of the hierarchy of distributed applications: the stack. A stack is a group of interrelated services that share dependencies, and can be orchestrated and scaled together. A single stack is capable of defining and coordinating the functionality of an entire application (though very complex applications may want to use multiple stacks).
+
+
+Change docker-compose file then redeploy
+
+docker-machine scp docker-compose.yml myvm1:~
+
+
+docker-machine ssh myvm1 "mkdir ./data"
+docker-machine scp docker-compose.yml myvm1:~
+docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"
+
+
+http://192.168.99.100:8080/
+
+http://192.168.99.100:8080/
